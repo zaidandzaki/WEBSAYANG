@@ -216,6 +216,29 @@
         <p>Made with love untuk Zaidan & Thalita 💖</p>
     </footer>
 
+    <!-- Floating Auto-Scroll Button -->
+    <button id="autoscroll-btn" class="autoscroll-btn" title="Mulai Auto Scroll">
+        <span class="scroll-icon">📜</span>
+        <span class="scroll-text">Auto Scroll</span>
+    </button>
+
+    <!-- Lightbox Zoom Modal -->
+    <div id="image-modal" class="image-modal" aria-hidden="true">
+        <div class="modal-backdrop" id="modal-backdrop"></div>
+        <button class="modal-close" id="modal-close" aria-label="Tutup">&times;</button>
+        <button class="modal-nav prev-nav" id="modal-prev" aria-label="Sebelumnya">&#10094;</button>
+        
+        <div class="modal-content-wrapper">
+            <img class="modal-image" id="modal-img" src="" alt="Zoomed view">
+            <div class="modal-caption" id="modal-caption">
+                <h3 id="modal-title"></h3>
+                <p id="modal-date" class="modal-date"></p>
+            </div>
+        </div>
+        
+        <button class="modal-nav next-nav" id="modal-next" aria-label="Selanjutnya">&#10095;</button>
+    </div>
+
     <!-- AOS Animation Script -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="script.js"></script>

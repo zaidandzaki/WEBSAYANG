@@ -90,5 +90,177 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initial track setup
     loadTrack(0);
+
+    // ==========================================
+    // AUTO SCROLL FEATURE
+    // ==========================================
+    const autoscrollBtn = document.getElementById('autoscroll-btn');
+    let isAutoScrolling = false;
+    let scrollAnimId = null;
+    const scrollSpeed = 1.0; // pixels per frame (~60px/sec at 60fps)
+
+    function stepScroll() {
+        if (!isAutoScrolling) return;
+
+        window.scrollBy(0, scrollSpeed);
+
+        // Stop if reached the end of the page
+        if ((window.innerHeight + window.pageYOffset) >= document.documentElement.scrollHeight - 5) {
+            stopAutoScroll();
+            return;
+        }
+
+        scrollAnimId = requestAnimationFrame(stepScroll);
+    }
+
+    function startAutoScroll() {
+        isAutoScrolling = true;
+        autoscrollBtn.classList.add('scrolling');
+        autoscrollBtn.innerHTML = '<span class="scroll-icon">⏸</span> <span class="scroll-text">Berhenti</span>';
+        scrollAnimId = requestAnimationFrame(stepScroll);
+    }
+
+    function stopAutoScroll() {
+        isAutoScrolling = false;
+        if (scrollAnimId) {
+            cancelAnimationFrame(scrollAnimId);
+            scrollAnimId = null;
+        }
+        autoscrollBtn.classList.remove('scrolling');
+        autoscrollBtn.innerHTML = '<span class="scroll-icon">📜</span> <span class="scroll-text">Auto Scroll</span>';
+    }
+
+    if (autoscrollBtn) {
+        autoscrollBtn.addEventListener('click', function() {
+            if (isAutoScrolling) {
+                stopAutoScroll();
+            } else {
+                startAutoScroll();
+            }
+        });
+    }
+
+    // ==========================================
+    // LIGHTBOX / ZOOM MODAL FEATURE
+    // ==========================================
+    const imageModal = document.getElementById('image-modal');
+    const modalBackdrop = document.getElementById('modal-backdrop');
+    const modalImg = document.getElementById('modal-img');
+    const modalTitle = document.getElementById('modal-title');
+    const modalDate = document.getElementById('modal-date');
+    const modalClose = document.getElementById('modal-close');
+    const modalPrev = document.getElementById('modal-prev');
+    const modalNext = document.getElementById('modal-next');
+
+    const timelineItems = document.querySelectorAll('.timeline-item');
+    const gallery = [];
+
+    timelineItems.forEach((item, index) => {
+        const img = item.querySelector('.image-box img');
+        const titleEl = item.querySelector('.timeline-content h3');
+        const dateEl = item.querySelector('.timeline-content .date');
+
+        if (img) {
+            gallery.push({
+                src: img.getAttribute('src'),
+                title: titleEl ? titleEl.textContent.trim() : '',
+                date: dateEl ? dateEl.textContent.trim() : ''
+            });
+
+            const imgBox = item.querySelector('.image-box');
+            if (imgBox) {
+                imgBox.addEventListener('click', function() {
+                    openModal(index);
+                });
+            }
+        }
+    });
+
+    let currentGalleryIndex = 0;
+
+    function openModal(index) {
+        if (!gallery[index]) return;
+
+        // Pause auto-scroll when inspecting a zoomed photo
+        if (isAutoScrolling) {
+            stopAutoScroll();
+        }
+
+        currentGalleryIndex = index;
+        updateModalContent();
+
+        imageModal.classList.add('active');
+        imageModal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+        imageModal.classList.remove('active');
+        imageModal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+    }
+
+    function updateModalContent() {
+        const item = gallery[currentGalleryIndex];
+        if (!item) return;
+
+        modalImg.style.opacity = '0';
+        modalImg.src = item.src;
+        modalTitle.textContent = item.title;
+        modalDate.textContent = item.date;
+
+        modalImg.onload = function() {
+            modalImg.style.opacity = '1';
+        };
+        setTimeout(() => {
+            modalImg.style.opacity = '1';
+        }, 50);
+    }
+
+    function showNextImage() {
+        currentGalleryIndex = (currentGalleryIndex + 1) % gallery.length;
+        updateModalContent();
+    }
+
+    function showPrevImage() {
+        currentGalleryIndex = (currentGalleryIndex - 1 + gallery.length) % gallery.length;
+        updateModalContent();
+    }
+
+    if (modalClose) modalClose.addEventListener('click', closeModal);
+    if (modalBackdrop) modalBackdrop.addEventListener('click', closeModal);
+    if (modalNext) modalNext.addEventListener('click', showNextImage);
+    if (modalPrev) modalPrev.addEventListener('click', showPrevImage);
+
+    // Keyboard support
+    document.addEventListener('keydown', function(e) {
+        if (!imageModal.classList.contains('active')) return;
+
+        if (e.key === 'Escape') {
+            closeModal();
+        } else if (e.key === 'ArrowRight') {
+            showNextImage();
+        } else if (e.key === 'ArrowLeft') {
+            showPrevImage();
+        }
+    });
+
+    // Touch swipe support for mobile
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    imageModal.addEventListener('touchstart', function(e) {
+        touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    imageModal.addEventListener('touchend', function(e) {
+        touchEndX = e.changedTouches[0].screenX;
+        const threshold = 50;
+        if (touchEndX < touchStartX - threshold) {
+            showNextImage(); // swipe left -> next
+        } else if (touchEndX > touchStartX + threshold) {
+            showPrevImage(); // swipe right -> prev
+        }
+    }, { passive: true });
 });
 

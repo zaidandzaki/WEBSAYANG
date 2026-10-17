@@ -221,6 +221,9 @@ h1, h2, h3, .subtitle {
 .image-box {
     position: relative;
     margin-bottom: 20px;
+    cursor: zoom-in;
+    overflow: hidden;
+    border-radius: 4px;
 }
 
 .image-box img {
@@ -231,6 +234,14 @@ h1, h2, h3, .subtitle {
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     background: #fff;
     border-radius: 2px;
+    cursor: zoom-in;
+    transition: transform 0.35s ease, filter 0.35s ease;
+    display: block;
+}
+
+.image-box:hover img {
+    transform: scale(1.03);
+    filter: brightness(1.03);
 }
 
 /* Washi tape effects */
@@ -296,6 +307,181 @@ h1, h2, h3, .subtitle {
     color: #c06c84;
 }
 
+/* Floating Auto-Scroll Button */
+.autoscroll-btn {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f67280;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: 0 4px 18px rgba(246, 114, 128, 0.45);
+    backdrop-filter: blur(8px);
+    transition: all 0.25s ease;
+}
+
+.autoscroll-btn:hover {
+    background-color: #c06c84;
+    transform: scale(1.05);
+    box-shadow: 0 6px 22px rgba(192, 108, 132, 0.5);
+}
+
+.autoscroll-btn.scrolling {
+    background-color: #c06c84;
+    animation: pulse-scroll 2s infinite ease-in-out;
+}
+
+@keyframes pulse-scroll {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(192, 108, 132, 0.6);
+    }
+    50% {
+        box-shadow: 0 0 0 10px rgba(192, 108, 132, 0);
+    }
+}
+
+/* Lightbox Modal */
+.image-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.image-modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(18, 10, 15, 0.88);
+    backdrop-filter: blur(8px);
+    cursor: pointer;
+}
+
+.modal-content-wrapper {
+    position: relative;
+    z-index: 2;
+    max-width: 90vw;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+}
+
+.modal-image {
+    max-width: 88vw;
+    max-height: 76vh;
+    object-fit: contain;
+    border-radius: 8px;
+    border: 6px solid #fff;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+    transform: scale(0.92);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.image-modal.active .modal-image {
+    transform: scale(1);
+}
+
+.modal-caption {
+    margin-top: 14px;
+    text-align: center;
+    color: #fff;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.7);
+}
+
+.modal-caption h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.45rem;
+    color: #ffe6ec;
+    margin-bottom: 4px;
+}
+
+.modal-caption p {
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.95rem;
+    color: #ffd2dc;
+}
+
+.modal-close {
+    position: fixed;
+    top: 20px;
+    right: 25px;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: #fff;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    font-size: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    backdrop-filter: blur(5px);
+    transition: all 0.2s ease;
+    line-height: 1;
+}
+
+.modal-close:hover {
+    background: #f67280;
+    transform: scale(1.1);
+}
+
+.modal-nav {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: #fff;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    backdrop-filter: blur(5px);
+    transition: all 0.2s ease;
+}
+
+.modal-nav:hover {
+    background: #f67280;
+    transform: translateY(-50%) scale(1.1);
+}
+
+.prev-nav {
+    left: 20px;
+}
+
+.next-nav {
+    right: 20px;
+}
+
 /* Responsive Styles for Mobile */
 @media screen and (max-width: 768px) {
     .timeline::after {
@@ -315,6 +501,41 @@ h1, h2, h3, .subtitle {
     .timeline-item.left::after, 
     .timeline-item.right::after {
         left: 15px;
+    }
+
+    .autoscroll-btn {
+        bottom: 20px;
+        right: 15px;
+        padding: 8px 15px;
+        font-size: 0.8rem;
+    }
+
+    .modal-image {
+        max-width: 92vw;
+        max-height: 68vh;
+        border-width: 4px;
+    }
+
+    .modal-nav {
+        width: 38px;
+        height: 38px;
+        font-size: 16px;
+    }
+
+    .prev-nav {
+        left: 10px;
+    }
+
+    .next-nav {
+        right: 10px;
+    }
+
+    .modal-close {
+        top: 15px;
+        right: 15px;
+        width: 38px;
+        height: 38px;
+        font-size: 24px;
     }
 }
 
